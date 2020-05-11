@@ -3,6 +3,7 @@ version: 1.0.0
 passwd:
   users:
     - name: core
+      password_hash: "$${c}6$${c}mysecretsalt$${c}tD6lGf9FdSWKyrGT7O/h8DvbPso3lPDhYYxjmL.tInFSxnAAkjzRfMCew/.tVPkJMrSKhToVL2KUzKB9FMGWZ1"
       ssh_authorized_keys:
         - ${FCOS_SSH_PUBKEY}
 storage:
@@ -20,6 +21,7 @@ storage:
           net.bridge.bridge-nf-call-ip6tables = 1
           net.bridge.bridge-nf-call-iptables = 1
           vm.swappiness = 0
+${FCOS_NETWORK_CONFIG}
     - path: /usr/local/bin/install-k8s.sh
       mode: 0755
       contents:
@@ -50,12 +52,15 @@ storage:
               systemctl enable $${c}s
               systemctl start $${c}s
           done
+          sleep 5
 
           echo "Setting hostname to ${FCOS_HOSTNAME} (advertise ip = ${FCOS_ADVERTISE_IP})"
           hostnamectl set-hostname ${FCOS_HOSTNAME}
           echo "${FCOS_ADVERTISE_IP} ${FCOS_HOSTNAME}" >> /etc/hosts
-          # kubeadm init --config /etc/kubernetes/kubeadm-custom-config.yaml | tee kubeadm_init.log
-          touch /usr/local/.k8s_installed
+
+          echo "Setting up kubernetes with ${FCOS_SETUP_COMMAND}"
+          ${FCOS_SETUP_COMMAND} | tee /var/log/setup-k8s.log
+          touch /var/log/k8s-installed
     - path: /etc/kubernetes/kubeadm-custom-config.yaml
       mode: 0644
       contents:
@@ -76,7 +81,7 @@ storage:
             bindPort: 6443
           nodeRegistration:
             criSocket: /run/containerd/containerd.sock
-            name: master.playground.k8s
+            name: ${FCOS_HOSTNAME}
             taints:
               - effect: NoSchedule
                 key: node-role.kubernetes.io/master
@@ -144,7 +149,7 @@ systemd:
         After=network-online.target
         Wants=network-online.target
         Before=systemd-user-sessions.service
-        ConditionPathExists=!/usr/local/.k8s_installed
+        ConditionPathExists=!/var/log/k8s-installed
         [Service]
         Type=oneshot
         RemainAfterExit=true

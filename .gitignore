@@ -1,4 +1,5 @@
 /.idea/
 *.iml
 /*.ign
-/env
+/env-*
+/network-config.yaml

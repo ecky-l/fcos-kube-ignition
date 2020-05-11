@@ -1,0 +1,19 @@
+    - path: /etc/NetworkManager/system-connections/eth1.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          interface-name=eth1
+          type=ethernet
+          [ethernet]
+          mac-address-blacklist=
+          [ipv4]
+          method=manual
+          addresses=${FCOS_ADVERTISE_IP}/24
+          dns=192.168.56.1;1.1.1.1;8.8.8.8
+          [ipv6]
+          addr-gen-mode=stable-privacy
+          dns-search=
+          method=auto
+          [proxy]
