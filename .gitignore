@@ -1,1 +1,4 @@
-*.ign
+/.idea/
+*.iml
+/*.ign
+/env

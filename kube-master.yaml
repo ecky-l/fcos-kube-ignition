@@ -4,7 +4,7 @@ passwd:
   users:
     - name: core
       ssh_authorized_keys:
-        - ssh-ed25519 AAA ...
+        - ${FCOS_SSH_PUBKEY}
 storage:
   files:
     - path: /etc/modules-load.d/80-k8s.conf
@@ -37,25 +37,23 @@ storage:
           echo "installing cni plugins"
           mkdir -p /opt/cni/bin
           curl -fsL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
-          RELEASE="$${c}(curl -sfSL https://dl.k8s.io/release/stable.txt)"
-          echo "installing kubernetes ${c}{RELEASE}"
+          echo "installing kubernetes ${FCOS_KUBE_VERSION}"
           for f in kubeadm kubelet kubectl; do
-              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/$${c}{RELEASE}/bin/linux/amd64/$${c}f --output /usr/local/bin/$${c}f
+              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${FCOS_KUBE_VERSION}/bin/linux/amd64/$${c}f --output /usr/local/bin/$${c}f
               chmod 755 /usr/local/bin/$${c}f;
           done
 
-          echo "Installing crictl"
-          CRICTL_VERSION="v1.18.0"
-          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/$${c}{CRICTL_VERSION}/crictl-$${c}{CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
+          echo "Installing crictl ${FCOS_CRICTL_VERSION}"
+          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/${FCOS_CRICTL_VERSION}/crictl-${FCOS_CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
 
           for s in containerd kubelet; do
               systemctl enable $${c}s
               systemctl start $${c}s
           done
 
-          echo "Setting hostname"
-          hostnamectl set-hostname master.playground.k8s
-          echo "192.168.56.114 master.playground.k8s" >> /etc/hosts
+          echo "Setting hostname to ${FCOS_HOSTNAME} (advertise ip = ${FCOS_ADVERTISE_IP})"
+          hostnamectl set-hostname ${FCOS_HOSTNAME}
+          echo "${FCOS_ADVERTISE_IP} ${FCOS_HOSTNAME}" >> /etc/hosts
           # kubeadm init --config /etc/kubernetes/kubeadm-custom-config.yaml | tee kubeadm_init.log
           touch /usr/local/.k8s_installed
     - path: /etc/kubernetes/kubeadm-custom-config.yaml
@@ -74,7 +72,7 @@ storage:
                 - signing
                 - authentication
           localAPIEndpoint:
-            advertiseAddress: 192.168.56.114
+            advertiseAddress: ${FCOS_ADVERTISE_IP}
             bindPort: 6443
           nodeRegistration:
             criSocket: /run/containerd/containerd.sock
@@ -85,10 +83,10 @@ storage:
           ---
           apiVersion: kubeadm.k8s.io/v1beta2
           kind: ClusterConfiguration
-          kubernetesVersion: v1.18.2
+          kubernetesVersion: ${FCOS_KUBE_VERSION}
           apiServer:
             extraArgs:
-              advertise-address: 192.168.56.114
+              advertise-address: ${FCOS_ADVERTISE_IP}
             timeoutForControlPlane: 4m0s
           certificatesDir: /etc/kubernetes/pki
           clusterName: kubernetes
