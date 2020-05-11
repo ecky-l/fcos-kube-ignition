@@ -36,17 +36,17 @@ storage:
           
           echo "installing cni plugins"
           mkdir -p /opt/cni/bin
-          curl -sL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
-          RELEASE="$(curl -sSL https://dl.k8s.io/release/stable.txt)"
+          curl -fsL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
+          RELEASE="$(curl -sfSL https://dl.k8s.io/release/stable.txt)"
           echo "installing kubernetes ${RELEASE}"
           for f in kubeadm kubelet kubectl; do
-              curl -sL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${RELEASE}/bin/linux/amd64/$f --output /usr/local/bin/$f
+              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${RELEASE}/bin/linux/amd64/$f --output /usr/local/bin/$f
               chmod 755 /usr/local/bin/$f;
           done
 
           echo "Installing crictl"
           CRICTL_VERSION="v1.18.0"
-          curl -L https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
+          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
 
           for s in containerd kubelet; do
               systemctl enable $s
