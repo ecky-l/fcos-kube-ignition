@@ -32,25 +32,25 @@ storage:
 
           echo "disabling selinux"
           setenforce 0
-          sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+          sed -i 's/^SELINUX=enforcing$${c}/SELINUX=permissive/' /etc/selinux/config
           
           echo "installing cni plugins"
           mkdir -p /opt/cni/bin
           curl -fsL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
-          RELEASE="$(curl -sfSL https://dl.k8s.io/release/stable.txt)"
-          echo "installing kubernetes ${RELEASE}"
+          RELEASE="$${c}(curl -sfSL https://dl.k8s.io/release/stable.txt)"
+          echo "installing kubernetes ${c}{RELEASE}"
           for f in kubeadm kubelet kubectl; do
-              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${RELEASE}/bin/linux/amd64/$f --output /usr/local/bin/$f
-              chmod 755 /usr/local/bin/$f;
+              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/$${c}{RELEASE}/bin/linux/amd64/$${c}f --output /usr/local/bin/$${c}f
+              chmod 755 /usr/local/bin/$${c}f;
           done
 
           echo "Installing crictl"
           CRICTL_VERSION="v1.18.0"
-          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
+          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/$${c}{CRICTL_VERSION}/crictl-$${c}{CRICTL_VERSION}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
 
           for s in containerd kubelet; do
-              systemctl enable $s
-              systemctl start $s
+              systemctl enable $${c}s
+              systemctl start $${c}s
           done
 
           echo "Setting hostname"
@@ -137,7 +137,7 @@ systemd:
             # the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
             EnvironmentFile=-/etc/sysconfig/kubelet
             ExecStart=
-            ExecStart=/usr/local/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+            ExecStart=/usr/local/bin/kubelet $${c}KUBELET_KUBECONFIG_ARGS $${c}KUBELET_CONFIG_ARGS $${c}KUBELET_KUBEADM_ARGS $${c}KUBELET_EXTRA_ARGS
     - name: install-k8s.service
       enabled: true
       contents: |
