@@ -23,13 +23,13 @@ variable "os_version" {
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
-  default = "1.18.3"
+  default = "v1.18.3"
 }
 
 variable "crictl_version" {
   type = string
   description = "The crictl version"
-  default = "1.18.0"
+  default = "v1.18.0"
 }
 
 variable "ssh_authorized_keys" {
