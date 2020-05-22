@@ -1,0 +1,50 @@
+---
+variant: fcos
+version: 1.0.0
+storage:
+  directories:
+    - path: /var/lib/tftpboot
+      mode: 0755
+  files:
+    - path: /usr/local/bin/install-bootfiles.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash
+          echo "fetching pxelinux bootfiles"
+          touch /var/log/provision-done/install-bootfiles
+systemd:
+  units:
+    - name: tftpd.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=tftpd
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        TimeoutStartSec=0
+        ExecStartPre=-/bin/podman rm -f tftpd
+        ExecStartPre=/bin/podman pull pghalliday/tftp
+        ExecStart=/bin/podman run --name tftpd --init --net host -v /var/lib/tftpboot:/var/tftpboot:Z pghalliday/tftp
+        [Install]
+        WantedBy=multi-user.target
+    - name: install-bootfiles.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install Dependencies
+        After=network-online.target
+        Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/provision-done/install-bootfiles
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/bash /usr/local/bin/install-bootfiles.sh
+        StandardOutput=syslog+kmsg+console
+        StandardError=syslog+kmsg+console
+        [Install]
+        WantedBy=multi-user.target
+

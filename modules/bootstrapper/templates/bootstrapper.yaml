@@ -1,0 +1,45 @@
+---
+variant: fcos
+version: 1.0.0
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        %{~ for key in ssh_authorized_keys ~}
+        - ${key}
+        %{~ endfor ~}
+storage:
+  directories:
+    - path: /var/log/provision-done
+      mode: 0755
+  files:
+    - path: /usr/local/bin/install-dependencies.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash
+          test -f /usr/libexec/catatonit/catatonit || rpm-ostree install catatonit --reboot
+          touch /var/log/provision-done/install-dependencies
+
+systemd:
+  units:
+    - name: docker.service
+      mask: true
+    - name: install-depdencies.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install Dependencies
+        After=network-online.target
+        Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/provision-done/install-dependencies
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/bash /usr/local/bin/install-dependencies.sh
+        StandardOutput=syslog+kmsg+console
+        StandardError=syslog+kmsg+console
+        [Install]
+        WantedBy=multi-user.target

@@ -1,0 +1,39 @@
+---
+variant: fcos
+version: 1.0.0
+storage:
+  files:
+    - path: /etc/opt/dhcp/dhcpd.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          option domain-name     "${domain_name}";
+          option domain-name-servers     ${dhcpd_dns};
+          authoritative;
+          default-lease-time 600;
+          max-lease-time 7200;
+          subnet 10.10.0.0 netmask 255.255.0.0 {
+              range dynamic-bootp 10.10.1.0 10.10.255.255;
+              option broadcast-address 10.10.255.254;
+              option routers 10.10.0.1;
+              next-server 10.10.0.1;
+              filename "pxelinux.0";
+          }
+systemd:
+  units:
+    - name: dhcpd.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=dhcpd
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        TimeoutStartSec=0
+        ExecStartPre=-/bin/podman rm -f dhcpd
+        ExecStartPre=/bin/podman pull networkboot/dhcpd
+        ExecStart=/bin/podman run --name dhcpd --init --net host -v /etc/opt/dhcp:/data:Z networkboot/dhcpd ${dhcpd_interface}
+        [Install]
+        WantedBy=multi-user.target
+
