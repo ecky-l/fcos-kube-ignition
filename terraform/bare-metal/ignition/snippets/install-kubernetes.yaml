@@ -1,0 +1,90 @@
+---
+variant: fcos
+version: 1.0.0
+storage:
+  files:
+    - path: /usr/local/bin/install-k8s.sh
+      mode: 0755
+      contents:
+        inline: |
+          #!/usr/bin/env bash
+          # barely copied from https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+          set -e
+          echo "installing packages"
+          command -v ethtool 2 >/dev/null || rpm-ostree install conntrack ethtool --reboot
+
+          echo "disabling selinux"
+          setenforce 0
+          sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+          echo "installing cni plugins"
+          mkdir -p /opt/cni/bin
+          curl -fsL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
+          echo "installing kubernetes ${kubernetes_version}"
+          for f in kubeadm kubelet kubectl; do
+              curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${kubernetes_version}/bin/linux/amd64/$f --output /usr/local/bin/$f
+              chmod 755 /usr/local/bin/$f;
+          done
+
+          echo "Installing crictl ${crictl_version}"
+          curl -sfL https://github.com/kubernetes-sigs/cri-tools/releases/download/${crictl_version}/crictl-${crictl_version}-linux-amd64.tar.gz | tar -C /usr/local/bin/ -xz
+
+          for s in containerd kubelet; do
+              systemctl enable $s
+              systemctl start $s
+          done
+          sleep 5
+
+          echo "Setting hostname to ${domain_name} (advertise ip = ${advertise_ip})"
+          hostnamectl set-hostname ${domain_name}
+          echo "${advertise_ip} ${domain_name}" >> /etc/hosts
+
+          echo "Setting up kubernetes with ${setup_command}"
+          ${setup_command} | tee /var/log/setup-k8s.log
+          touch /var/log/k8s-installed
+systemd:
+  units:
+    - name: kubelet.service
+      enabled: false
+      contents: |
+        [Unit]
+        Description=kubelet: The Kubernetes Node Agent
+        Documentation=https://kubernetes.io/docs/home/
+        [Service]
+        ExecStart=/usr/local/bin/kubelet
+        Restart=always
+        StartLimitInterval=0
+        RestartSec=10
+        [Install]
+        WantedBy=multi-user.target
+      dropins:
+        - name: 10-kubeadm.conf
+          contents: |
+            # Note: This dropin only works with kubeadm and kubelet v1.11+
+            [Service]
+            Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
+            Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
+            # This is a file that "kubeadm init" and "kubeadm join" generates at runtime, populating the KUBELET_KUBEADM_ARGS variable dynamically
+            EnvironmentFile=-/var/lib/kubelet/kubeadm-flags.env
+            # This is a file that the user can use for overrides of the kubelet args as a last resort. Preferably, the user should use
+            # the .NodeRegistration.KubeletExtraArgs object in the configuration files instead. KUBELET_EXTRA_ARGS should be sourced from this file.
+            EnvironmentFile=-/etc/sysconfig/kubelet
+            ExecStart=
+            ExecStart=/usr/local/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+    - name: install-k8s.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Install Kubernetes
+        After=network-online.target
+        Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/k8s-installed
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/bash /usr/local/bin/install-k8s.sh
+        StandardOutput=syslog+kmsg+console
+        StandardError=syslog+kmsg+console
+        [Install]
+        WantedBy=multi-user.target

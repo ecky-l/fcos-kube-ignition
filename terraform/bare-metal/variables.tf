@@ -20,6 +20,18 @@ variable "os_version" {
   description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
 }
 
+variable "kubernetes_version" {
+  type = string
+  description = "The kubernetes version"
+  default = "1.18.3"
+}
+
+variable "crictl_version" {
+  type = string
+  description = "The crictl version"
+  default = "1.18.0"
+}
+
 variable "ssh_authorized_keys" {
   type        = list(string)
   description = "SSH public keys for user 'core'"
@@ -36,7 +48,7 @@ variable "controllers" {
     name   = string
     mac    = string
     domain = string
-    ip     = string
+    advertise_ip = string
     netconfig = list(object({
       interface = string
       method = string
@@ -55,7 +67,12 @@ variable "workers" {
     name   = string
     mac    = string
     domain = string
-    ip     = string
+    netconfig = list(object({
+      interface = string
+      method = string
+      ip = string
+      dns = string
+    }))
   }))
   description = <<EOD
 List of worker machine details (unique name, identifying MAC address, FQDN)
@@ -65,4 +82,16 @@ List of worker machine details (unique name, identifying MAC address, FQDN)
 ]
 EOD
   default = []
+}
+
+variable "pod_subnet" {
+  type = string
+  description = "Pod Subnet"
+  default = "10.244.0.0/16"
+}
+
+variable "service_subnet" {
+  type = string
+  description = "Service subnet"
+  default = "10.96.0.0/12"
 }
