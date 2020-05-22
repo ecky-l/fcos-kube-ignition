@@ -37,12 +37,6 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
-variable "node_dns" {
-  type = string
-  description = "Node DNS"
-  default = "8.8.8.8"
-}
-
 variable "controllers" {
   type = list(object({
     name   = string
