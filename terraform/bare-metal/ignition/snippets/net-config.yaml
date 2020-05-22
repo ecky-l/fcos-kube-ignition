@@ -1,0 +1,27 @@
+variant: fcos
+version: 1.0.0
+storage:
+  files:
+%{ for cfg in net-config ~}
+    - path: /etc/NetworkManager/system-connections/${cfg.interface}.nmconnection
+      mode: 0600
+      overwrite: true
+      contents:
+        inline: |
+          [connection]
+          interface-name=${cfg.interface}
+          type=ethernet
+          [ethernet]
+          mac-address-blacklist=
+          [ipv4]
+          method=${cfg.method}
+          %{~ if cfg.method == "manual" ~}
+          addresses=${cfg.ip}/24
+          dns=${cfg.dns}
+          %{~ endif ~}
+          [ipv6]
+          addr-gen-mode=stable-privacy
+          dns-search=
+          method=auto
+          [proxy]
+%{ endfor ~}
