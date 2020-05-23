@@ -1,7 +1,5 @@
 module "virtualbox-example" {
   source = "../../../modules/fcos-kube-ignition"
-  os_version = "31.20200420.3.0"
-  matchbox_http_endpoint = "http://192.168.56.1:8080"
 
   ssh_authorized_keys = [
     file("~/.ssh/id_ed25519.pub")

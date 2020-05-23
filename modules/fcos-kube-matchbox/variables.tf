@@ -1,4 +1,23 @@
+variable "cluster_name" {
+  type        = string
+  description = "Unique cluster name"
+}
 
+variable "matchbox_http_endpoint" {
+  type        = string
+  description = "Matchbox HTTP read-only endpoint (e.g. http://matchbox.example.com:8080)"
+}
+
+variable "os_stream" {
+  type        = string
+  description = "Fedora CoreOS release stream (e.g. testing, stable)"
+  default     = "stable"
+}
+
+variable "os_version" {
+  type        = string
+  description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
+}
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
@@ -67,4 +86,16 @@ variable "service_subnet" {
   type = string
   description = "Service subnet"
   default = "10.96.0.0/12"
+}
+
+variable "install_disk" {
+  type        = string
+  description = "Disk device to install Fedora CoreOS (e.g. /dev/sda)"
+  default     = "/dev/sda"
+}
+
+variable "kernel_args" {
+  type        = list(string)
+  description = "Additional kernel arguments to provide at PXE boot."
+  default     = []
 }
