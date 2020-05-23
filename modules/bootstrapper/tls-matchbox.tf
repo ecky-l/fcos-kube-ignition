@@ -9,7 +9,8 @@ resource "tls_self_signed_cert" "matchbox-ca" {
   allowed_uses = [
     "key_encipherment",
     "digital_signature",
-    "server_auth",
+    "cert_signing",
+    "crl_signing",
   ]
   key_algorithm = tls_private_key.matchbox-ca.algorithm
   private_key_pem = tls_private_key.matchbox-ca.private_key_pem
@@ -20,6 +21,7 @@ resource "tls_self_signed_cert" "matchbox-ca" {
     organization = "fcos-ignition"
   }
   is_ca_certificate = true
+  set_subject_key_id = true
 }
 
 resource "local_file" "matchbox-ca-cert" {
@@ -46,7 +48,8 @@ resource "tls_cert_request" "matchbox-server" {
   }
 
   dns_names = [
-    var.host_name
+    var.host_name,
+    "localhost"
   ]
   ip_addresses = [
     "10.10.0.1",
@@ -59,7 +62,6 @@ resource "tls_locally_signed_cert" "matchbox-server" {
     "key_encipherment",
     "digital_signature",
     "server_auth",
-    "client_auth",
   ]
   ca_cert_pem = tls_self_signed_cert.matchbox-ca.cert_pem
   ca_key_algorithm = tls_self_signed_cert.matchbox-ca.key_algorithm

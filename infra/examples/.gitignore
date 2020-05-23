@@ -1,2 +1,6 @@
 /.terraform/
 /output/
+/**/.terraform/
+/**/terraform.*
+/**/output/
+/**/tls/
