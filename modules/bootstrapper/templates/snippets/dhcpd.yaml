@@ -3,7 +3,7 @@ variant: fcos
 version: 1.0.0
 storage:
   files:
-    - path: /etc/opt/dhcp/dhcpd.conf
+    - path: /var/local/lib/dhcpd/dhcpd.conf
       mode: 0644
       overwrite: true
       contents:
@@ -37,7 +37,7 @@ systemd:
         TimeoutStartSec=0
         ExecStartPre=-/bin/podman rm -f dhcpd
         ExecStartPre=/bin/podman pull networkboot/dhcpd
-        ExecStart=/bin/podman run --name dhcpd --init --net host -v /etc/opt/dhcp:/data:Z networkboot/dhcpd ${dhcpd_interface}
+        ExecStart=/bin/podman run --name dhcpd --init --net host -v /var/local/lib/dhcpd:/data:Z networkboot/dhcpd ${dhcpd_interface}
         [Install]
         WantedBy=multi-user.target
 
