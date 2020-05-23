@@ -11,8 +11,9 @@ storage:
       overwrite: true
       contents:
         inline: |
-          #!/bin/bash
+          #!/bin/bash -e
           echo "fetching pxelinux bootfiles"
+          curl -sL --output /var/lib/tftpboot/undionly.kpxe http://boot.ipxe.org/undionly.kpxe
           touch /var/log/provision-done/install-bootfiles
 systemd:
   units:

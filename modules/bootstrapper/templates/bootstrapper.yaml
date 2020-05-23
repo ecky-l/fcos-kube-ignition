@@ -19,6 +19,7 @@ storage:
       contents:
         inline: |
           #!/bin/bash
+          hostnamectl set-hostname --static ${host_name}
           test -f /usr/libexec/catatonit/catatonit || rpm-ostree install catatonit --reboot
           touch /var/log/provision-done/install-dependencies
 

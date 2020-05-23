@@ -13,6 +13,11 @@ variable "net_config" {
   description = "Network configuration for the bootstrap host"
 }
 
+variable "host_name" {
+  type = string
+  description = "Hostname of the bootstrapper"
+}
+
 variable "domain_name" {
   type = string
   description = "Domain name of the bootstrapper"

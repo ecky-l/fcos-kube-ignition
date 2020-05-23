@@ -18,7 +18,11 @@ storage:
               option broadcast-address 10.10.255.254;
               option routers 10.10.0.1;
               next-server 10.10.0.1;
-              filename "pxelinux.0";
+              if exists user-class and option user-class = "iPXE" {
+                  filename "http://10.10.0.1:8080/boot.ipxe";
+              } else {
+                  filename "undionly.kpxe";
+              }
           }
 systemd:
   units:
