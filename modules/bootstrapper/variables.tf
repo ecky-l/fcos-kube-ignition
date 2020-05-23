@@ -33,3 +33,9 @@ variable "dhcpd_interface" {
   description = "The interface for dhcpd"
   default = "eth2"
 }
+
+variable "certs_dir" {
+  type = string
+  description = "Directory where to save the generated certs"
+  default = "output/tls/matchbox"
+}

@@ -1,0 +1,38 @@
+---
+variant: fcos
+version: 1.0.0
+storage:
+  directories:
+    - path: /var/local/etc/matchbox
+      mode: 0755
+    - path: /var/local/lib/matchbox/assets
+      mode: 0755
+  files:
+    - path: /usr/local/lib/install-matchbox.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          touch /var/log/provision-done/install-matchbox
+systemd:
+  units:
+    - name: matchbox.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=matchbox
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        TimeoutStartSec=0
+        ExecStartPre=-/bin/podman rm -f matchbox
+        ExecStartPre=/bin/podman pull quay.io/coreos/matchbox
+        ExecStart=/bin/podman run --name matchbox --init -p 10.10.0.1:8080:8080 -p 8081:8081 \
+                                  -v /var/local/lib/matchbox:/var/lib/matchbox:Z -v /var/local/etc/matchbox:/etc/matchbox:Z,ro \
+                                  quay.io/coreos/matchbox:latest \
+                                  -address=0.0.0.0:8080 \
+                                  -rpc-address=0.0.0.0:8081 \
+                                  -log-level=debug
+        [Install]
+        WantedBy=multi-user.target
