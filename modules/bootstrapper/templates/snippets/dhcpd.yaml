@@ -8,18 +8,18 @@ storage:
       overwrite: true
       contents:
         inline: |
-          option domain-name     "${domain_name}";
-          option domain-name-servers     ${dhcpd_dns};
+          option domain-name     "${dhcpd.domain_name}";
+          option domain-name-servers     ${dns};
           authoritative;
           default-lease-time 600;
           max-lease-time 7200;
-          subnet 10.10.0.0 netmask 255.255.0.0 {
-              range dynamic-bootp 10.10.1.0 10.10.255.255;
-              option broadcast-address 10.10.255.254;
-              option routers 10.10.0.1;
-              next-server 10.10.0.1;
+          subnet ${dhcpd.net} netmask ${dhcpd.netmask} {
+              range dynamic-bootp ${dhcpd.range_lower} ${dhcpd.range_upper};
+              option broadcast-address ${dhcpd.broadcast};
+              option routers ${dhcpd.ip};
+              next-server ${dhcpd.ip};
               if exists user-class and option user-class = "iPXE" {
-                  filename "http://10.10.0.1:8080/boot.ipxe";
+                  filename "http://${dhcpd.ip}:8080/boot.ipxe";
               } else {
                   filename "undionly.kpxe";
               }
@@ -37,7 +37,7 @@ systemd:
         TimeoutStartSec=0
         ExecStartPre=-/bin/podman rm -f dhcpd
         ExecStartPre=/bin/podman pull networkboot/dhcpd
-        ExecStart=/bin/podman run --name dhcpd --init --net host -v /var/local/lib/dhcpd:/data:Z networkboot/dhcpd ${dhcpd_interface}
+        ExecStart=/bin/podman run --name dhcpd --init --net host -v /var/local/lib/dhcpd:/data:Z networkboot/dhcpd ${dhcpd.interface}
         [Install]
         WantedBy=multi-user.target
 

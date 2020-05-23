@@ -3,6 +3,36 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
+variable "dns" {
+  type = string
+  description = "DNS used for dhcpd and net config"
+  default = "8.8.8.8"
+}
+
+variable "dhcpd_config" {
+  type = object({
+    interface = string
+    domain_name = string
+    ip = string
+    net = string
+    netmask = string
+    range_lower = string
+    range_upper = string
+    broadcast = string
+  })
+  description = "DHCP parameters"
+  default = {
+    interface = "eth2"
+    domain_name = "example.com"
+    ip = "10.10.0.1"
+    net = "10.10.0.0"
+    netmask = "255.255.0.0"
+    range_lower = "10.10.1.0"
+    range_upper = "10.10.255.254"
+    broadcast = "10.10.255.255"
+  }
+}
+
 variable "net_config" {
   type = list(object({
     interface = string
@@ -16,22 +46,6 @@ variable "net_config" {
 variable "host_name" {
   type = string
   description = "Hostname of the bootstrapper"
-}
-
-variable "domain_name" {
-  type = string
-  description = "Domain name of the bootstrapper"
-}
-
-variable "dhcpd_dns" {
-  type = string
-  description = "DNS for dhcpd configuration"
-}
-
-variable "dhcpd_interface" {
-  type = string
-  description = "The interface for dhcpd"
-  default = "eth2"
 }
 
 variable "certs_dir" {
