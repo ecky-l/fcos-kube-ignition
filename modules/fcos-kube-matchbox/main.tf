@@ -11,7 +11,7 @@ locals {
     "ignition.platform.id=metal",
     "coreos.inst.install_dev=${var.install_disk}",
     "coreos.inst.stream=${var.os_stream}",
-    #"coreos.inst.image_url=${var.matchbox_http_endpoint}/assets/fcos/${var.os_version}/fedora-coreos-${var.os_version}-metal.x86_64.raw.xz",
+    "coreos.inst.image_url=${var.matchbox_http_endpoint}/assets/fcos/${var.os_version}/fedora-coreos-${var.os_version}-metal.x86_64.raw.xz",
     "coreos.inst.ignition_url=${var.matchbox_http_endpoint}/ignition?uuid=$${uuid}&mac=$${mac:hexhyp}",
   ]
 

@@ -51,4 +51,3 @@ storage:
             podSubnet: ${pod_subnet}
             serviceSubnet: ${service_subnet}
           scheduler: {}
-          ...
