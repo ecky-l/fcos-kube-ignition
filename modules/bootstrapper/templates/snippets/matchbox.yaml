@@ -8,6 +8,24 @@ storage:
     - path: /var/local/lib/matchbox/assets
       mode: 0755
   files:
+    - path: /var/local/etc/matchbox/ca.crt
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          ${ indent(10, ca_cert) }
+    - path: /var/local/etc/matchbox/server.crt
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          ${ indent(10, server_cert) }
+    - path: /var/local/etc/matchbox/server.key
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          ${ indent(10, server_key) }
     - path: /usr/local/lib/install-matchbox.sh
       mode: 0755
       overwrite: true
