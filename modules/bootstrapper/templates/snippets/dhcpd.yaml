@@ -9,7 +9,7 @@ storage:
       contents:
         inline: |
           option domain-name     "${dhcpd.domain_name}";
-          option domain-name-servers     ${dns};
+          option domain-name-servers     ${dhcpd.dns};
           authoritative;
           default-lease-time 600;
           max-lease-time 7200;

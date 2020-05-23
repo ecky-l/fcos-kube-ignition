@@ -13,7 +13,8 @@ module "virtualbox-example" {
     netconfig = [{
       interface = "eth1"
       method = "manual"
-      ip = "192.168.56.20"
+      gateway = null
+      ipnet = "192.168.56.20/24"
       dns = "192.168.2.10"
     }]
   }]

@@ -3,16 +3,11 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
-variable "dns" {
-  type = string
-  description = "DNS used for dhcpd and net config"
-  default = "8.8.8.8"
-}
-
 variable "dhcpd_config" {
   type = object({
     interface = string
     domain_name = string
+    dns = string
     ip = string
     net = string
     netmask = string
@@ -24,6 +19,7 @@ variable "dhcpd_config" {
   default = {
     interface = "eth2"
     domain_name = "example.com"
+    dns = "8.8.8.8"
     ip = "10.10.0.1"
     net = "10.10.0.0"
     netmask = "255.255.0.0"
@@ -38,6 +34,7 @@ variable "net_config" {
     interface = string
     method = string
     ipnet = string
+    gateway = string
     dns = string
   }))
   description = "Network configuration for the bootstrap host"

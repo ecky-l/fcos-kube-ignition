@@ -44,7 +44,8 @@ variable "controllers" {
     netconfig = list(object({
       interface = string
       method = string
-      ip = string
+      gateway = string
+      ipnet = string
       dns = string
     }))
   }))
@@ -62,7 +63,8 @@ variable "workers" {
     netconfig = list(object({
       interface = string
       method = string
-      ip = string
+      gateway = string
+      ipnet = string
       dns = string
     }))
   }))
