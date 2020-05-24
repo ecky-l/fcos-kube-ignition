@@ -13,6 +13,11 @@ storage:
     - path: /var/log/provision-done
       mode: 0755
   files:
+    - path: /etc/sysctl.d/10-dmesg.conf
+      mode: 0644
+      contents:
+        inline: |
+          kernel.printk = 2 4 1 7
     - path: /usr/local/bin/install-dependencies.sh
       mode: 0755
       overwrite: true

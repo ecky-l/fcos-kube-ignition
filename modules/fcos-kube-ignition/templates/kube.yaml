@@ -10,6 +10,11 @@ passwd:
         %{~ endfor ~}
 storage:
   files:
+    - path: /etc/sysctl.d/10-dmesg.conf
+      mode: 0644
+      contents:
+        inline: |
+          kernel.printk = 2 4 1 7
     - path: /etc/modules-load.d/80-k8s.conf
       mode: 0644
       contents:
