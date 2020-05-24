@@ -59,27 +59,6 @@ storage:
           local-address=0.0.0.0
           forward-zones=
           forward-zones+=local.vlan=127.0.0.1:5300
-    - path: /usr/local/bin/dns-up.sh
-      mode: 0755
-      overwrite: true
-      contents:
-        inline: |
-          #!/bin/bash -e
-          echo "starting up pod dns for pdns and pdns-recursor"
-          podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
-          podman create -d --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
-          podman create -d -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z --pod dns \
-              --name pdns-recursor lmnetworks/pdns-recursor
-          podman pod restart dns
-    - path: /usr/local/bin/dns-down.sh
-      mode: 0755
-      overwrite: true
-      contents:
-        inline: |
-          #!/bin/bash -e
-          echo "shutting down pod dns for pdns and pdns-recursor"
-          podman pod stop dns
-          podman pod rm -f dns
 systemd:
   units:
     - name: dns.service
@@ -90,10 +69,12 @@ systemd:
         After=network-online.target
         Wants=network-online.target
         [Service]
-        Type=simple
+        #Type=simple
         TimeoutStartSec=0
         ExecStartPre=-/bin/podman pod rm -f dns
-        ExecStart=/usr/local/bin/dns-up.sh
-        #ExecStop=/usr/local/bin/dns-down.sh
+        ExecStartPre=/bin/podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
+        ExecStartPre=/bin/podman create --init --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
+        ExecStartPre=/bin/podman create --init -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z --pod dns --name pdns-recursor lmnetworks/pdns-recursor
+        ExecStart=/bin/podman pod start dns
         [Install]
         WantedBy=multi-user.target
