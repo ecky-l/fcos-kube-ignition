@@ -1,0 +1,99 @@
+---
+variant: fcos
+version: 1.0.0
+storage:
+  directories:
+    - path: /var/local/etc/pdns/conf.d
+      mode: 0755
+  files:
+    - path: /var/local/etc/pdns/pdns.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          local-ipv6=
+          local-address=127.0.0.1
+          local-port=5300
+          launch=bind
+          bind-config=/etc/pdns/bind/named.conf
+          daemon=yes
+          guardian=yes
+          include-dir=/etc/pdns/conf.d
+          security-poll-suffix=
+          setgid=pdns
+          setuid=pdns
+          log-dns-details=yes
+          log-dns-queries=yes
+    - path: /var/local/etc/pdns/bind/named.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          zone "local.vlan" {
+              type master;
+              file "/etc/pdns/bind/local.vlan.zone";
+              allow-update { none; };
+          };
+    - path: /var/local/etc/pdns/bind/local.vlan.zone
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          $ORIGIN local.vlan	; base for unqualified names
+          $TTL 1h			; default time-to-live
+          @			IN	SOA ns.local.vlan hostmaster.local.vlan (
+          				1; serial
+          				1d; refresh
+          				2h; retry
+          				4w; expire
+          				1h; minimum time-to-live
+          			)
+          			IN	NS	ns
+          			IN	A	10.10.0.1
+          ns			IN	A	10.10.0.1
+    - path: /var/local/etc/pdns-recursor/recursor.conf
+      mode: 0644
+      overwrite: true
+      contents:
+        inline: |
+          local-address=0.0.0.0
+          forward-zones=
+          forward-zones+=local.vlan=127.0.0.1:5300
+    - path: /usr/local/bin/dns-up.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          echo "starting up pod dns for pdns and pdns-recursor"
+          podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
+          podman create -d --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
+          podman create -d -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z --pod dns \
+              --name pdns-recursor lmnetworks/pdns-recursor
+          podman pod restart dns
+    - path: /usr/local/bin/dns-down.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          echo "shutting down pod dns for pdns and pdns-recursor"
+          podman pod stop dns
+          podman pod rm -f dns
+systemd:
+  units:
+    - name: dns.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=dns
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=simple
+        TimeoutStartSec=0
+        ExecStartPre=-/bin/podman pod rm -f dns
+        ExecStart=/usr/local/bin/dns-up.sh
+        #ExecStop=/usr/local/bin/dns-down.sh
+        [Install]
+        WantedBy=multi-user.target
