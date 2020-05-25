@@ -6,7 +6,7 @@ storage:
     - path: /var/local/lib/tftpboot
       mode: 0755
   files:
-    - path: /usr/local/bin/install-bootfiles.sh
+    - path: /usr/local/bin/install-tftpd.sh
       mode: 0755
       overwrite: true
       contents:
@@ -14,38 +14,29 @@ storage:
           #!/bin/bash -e
           echo "fetching pxelinux bootfiles"
           curl -sL --output /var/local/lib/tftpboot/undionly.kpxe http://boot.ipxe.org/undionly.kpxe
-          touch /var/log/provision-done/install-bootfiles
+          podman create --name tftpd --init -p 10.10.0.1:69:69/udp -v /var/local/lib/tftpboot:/var/tftpboot:Z pghalliday/tftp
+          cd /etc/systemd/system/ && podman generate systemd -fn tftpd ; cd -
+          systemctl daemon-reload
+          systemctl enable container-tftpd
+          systemctl start container-tftpd
+          touch /var/log/provision-done/install-tftpd
 systemd:
   units:
-    - name: tftpd.service
+    - name: install-tftpd.service
       enabled: true
       contents: |
         [Unit]
-        Description=tftpd
-        After=network-online.target
-        Wants=network-online.target
-        [Service]
-        TimeoutStartSec=0
-        ExecStartPre=-/bin/podman rm -f tftpd
-        ExecStartPre=/bin/podman pull pghalliday/tftp
-        ExecStart=/bin/podman run --name tftpd --init --net host -v /var/local/lib/tftpboot:/var/tftpboot:Z pghalliday/tftp
-        [Install]
-        WantedBy=multi-user.target
-    - name: install-bootfiles.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Install Dependencies
+        Description=Install tftp service from container
         After=network-online.target
         Wants=network-online.target
         Before=systemd-user-sessions.service
-        ConditionPathExists=!/var/log/provision-done/install-bootfiles
+        ConditionPathExists=!/var/log/provision-done/install-tftpd
         [Service]
         Type=oneshot
         RemainAfterExit=true
-        ExecStart=/bin/bash /usr/local/bin/install-bootfiles.sh
-        StandardOutput=syslog+kmsg+console
-        StandardError=syslog+kmsg+console
+        ExecStart=/usr/local/bin/install-tftpd.sh
+        StandardOutput=kmsg+console
+        StandardError=kmsg+console
         [Install]
         WantedBy=multi-user.target
 

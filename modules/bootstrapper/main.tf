@@ -17,6 +17,9 @@ data "ct_config" "bootstrapper-ignition" {
       ca_cert = tls_self_signed_cert.matchbox-ca.cert_pem,
       server_cert = tls_locally_signed_cert.matchbox-server.cert_pem,
       server_key = tls_private_key.matchbox-server.private_key_pem
+    }),
+    templatefile("${path.module}/templates/snippets/pdns.yaml", {
+
     })
   ]
 }

@@ -13,7 +13,7 @@ module "virtualbox-bootstrapper" {
     method = "manual"
     ipnet = "10.10.0.1/16"
     gateway = null
-    dns = "192.168.2.10"
+    dns = "10.10.0.1"
   }]
 
   ssh_authorized_keys = [

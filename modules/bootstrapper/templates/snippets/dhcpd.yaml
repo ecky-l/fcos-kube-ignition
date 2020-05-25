@@ -24,20 +24,36 @@ storage:
                   filename "undionly.kpxe";
               }
           }
+    - path: /usr/local/bin/install-dhcpd.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          echo "creating dhcpd container and systemd unit to start it"
+          podman create --name dhcpd --init --net host -v /var/local/lib/dhcpd:/data:Z networkboot/dhcpd ${dhcpd.interface}
+          cd /etc/systemd/system/ && podman generate systemd -fn dhcpd ; cd -
+          systemctl daemon-reload
+          systemctl enable container-dhcpd
+          systemctl start container-dhcpd
+          touch /var/log/provision-done/install-dhcpd
 systemd:
   units:
-    - name: dhcpd.service
+    - name: install-dhcpd.service
       enabled: true
       contents: |
         [Unit]
-        Description=dhcpd
+        Description=Install dhcpd service from container
         After=network-online.target
         Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/provision-done/install-dhcpd
         [Service]
-        TimeoutStartSec=0
-        ExecStartPre=-/bin/podman rm -f dhcpd
-        ExecStartPre=/bin/podman pull networkboot/dhcpd
-        ExecStart=/bin/podman run --name dhcpd --init --net host -v /var/local/lib/dhcpd:/data:Z networkboot/dhcpd ${dhcpd.interface}
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/usr/local/bin/install-dhcpd.sh
+        StandardOutput=kmsg+console
+        StandardError=kmsg+console
         [Install]
         WantedBy=multi-user.target
 

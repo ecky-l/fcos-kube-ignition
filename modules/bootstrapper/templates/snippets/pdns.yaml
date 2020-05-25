@@ -16,7 +16,7 @@ storage:
           local-port=5300
           launch=bind
           bind-config=/etc/pdns/bind/named.conf
-          daemon=yes
+          daemon=no
           guardian=yes
           include-dir=/etc/pdns/conf.d
           security-poll-suffix=
@@ -56,25 +56,43 @@ storage:
       overwrite: true
       contents:
         inline: |
+          daemon=no
           local-address=0.0.0.0
           forward-zones=
           forward-zones+=local.vlan=127.0.0.1:5300
+    - path: /usr/local/bin/install-dns.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          echo "creating dns pod with pdns and pdns-recursor containers"
+          podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
+          podman create -d --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
+          podman create -d -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z \
+              --pod dns --name pdns-recursor lmnetworks/pdns-recursor
+          cd /etc/systemd/system/ && podman generate systemd -fn dns ; cd -
+          systemctl daemon-reload
+          systemctl enable pod-dns
+          systemctl start pod-dns
+          touch /var/log/provision-done/install-dns
 systemd:
   units:
-    - name: dns.service
+    - name: install-dns.service
       enabled: true
       contents: |
         [Unit]
-        Description=dns
+        Description=Install dns service from pod with containers
         After=network-online.target
         Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/provision-done/install-dns
         [Service]
-        #Type=simple
-        TimeoutStartSec=0
-        ExecStartPre=-/bin/podman pod rm -f dns
-        ExecStartPre=/bin/podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
-        ExecStartPre=/bin/podman create --init --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
-        ExecStartPre=/bin/podman create --init -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z --pod dns --name pdns-recursor lmnetworks/pdns-recursor
-        ExecStart=/bin/podman pod start dns
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/usr/local/bin/install-dns.sh
+        StandardOutput=kmsg+console
+        StandardError=kmsg+console
         [Install]
         WantedBy=multi-user.target
+
