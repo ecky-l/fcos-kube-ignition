@@ -3,12 +3,17 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
+variable "vlan_ip" {
+  type = string
+  description = "The vlan ip for this host"
+  default = "10.10.0.1"
+}
+
 variable "dhcpd_config" {
   type = object({
     interface = string
     domain_name = string
     dns = string
-    ip = string
     net = string
     netmask = string
     range_lower = string
@@ -20,7 +25,6 @@ variable "dhcpd_config" {
     interface = "eth2"
     domain_name = "example.com"
     dns = "8.8.8.8"
-    ip = "10.10.0.1"
     net = "10.10.0.0"
     netmask = "255.255.0.0"
     range_lower = "10.10.1.0"

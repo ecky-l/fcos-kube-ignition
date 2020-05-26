@@ -16,10 +16,10 @@ storage:
           subnet ${dhcpd.net} netmask ${dhcpd.netmask} {
               range dynamic-bootp ${dhcpd.range_lower} ${dhcpd.range_upper};
               option broadcast-address ${dhcpd.broadcast};
-              option routers ${dhcpd.ip};
-              next-server ${dhcpd.ip};
+              option routers ${vlan_ip};
+              next-server ${vlan_ip};
               if exists user-class and option user-class = "iPXE" {
-                  filename "http://${dhcpd.ip}:8080/boot.ipxe";
+                  filename "http://${vlan_ip}:8080/boot.ipxe";
               } else {
                   filename "undionly.kpxe";
               }

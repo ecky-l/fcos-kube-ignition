@@ -18,10 +18,16 @@ storage:
           method=${cfg.method}
           %{~ if cfg.method == "manual" ~}
           addresses=${cfg.ipnet}${ cfg.gateway != null ? format(",%s",cfg.gateway) : ""}
+          %{~ if cfg.dns != null ~}
           dns=${cfg.dns}
           %{~ endif ~}
-          %{~ if cfg.method == "auto" && cfg.gateway == null ~}
+          %{~ else ~}
+          %{~ if cfg.gateway == null ~}
           never-default=true
+          %{~ endif ~}
+          %{~ if cfg.ignore_auto_dns ~}
+          ignore-auto-dns=true
+          %{~ endif ~}
           %{~ endif ~}
           [ipv6]
           addr-gen-mode=stable-privacy

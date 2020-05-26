@@ -49,8 +49,8 @@ storage:
           				1h; minimum time-to-live
           			)
           			IN	NS	ns
-          			IN	A	10.10.0.1
-          ns			IN	A	10.10.0.1
+          			IN	A	${vlan_ip}
+          ns		IN	A	${vlan_ip}
     - path: /var/local/etc/pdns-recursor/recursor.conf
       mode: 0644
       overwrite: true
@@ -67,7 +67,7 @@ storage:
         inline: |
           #!/bin/bash -e
           echo "creating dns pod with pdns and pdns-recursor containers"
-          podman pod create -p 10.10.0.1:53:53/udp -p 10.10.0.1:53:53/tcp -n dns
+          podman pod create -p ${vlan_ip}:53:53/udp -p ${vlan_ip}:53:53/tcp -n dns
           podman create -d --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
           podman create -d -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z \
               --pod dns --name pdns-recursor lmnetworks/pdns-recursor

@@ -7,7 +7,7 @@ module "virtualbox-bootstrapper" {
     method = "manual"
     ipnet = "192.168.56.19/24"
     gateway = null
-    dns = "192.168.2.10"
+    dns = null
   },{
     interface = "eth2"
     method = "manual"

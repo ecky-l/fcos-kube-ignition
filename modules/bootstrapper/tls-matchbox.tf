@@ -52,7 +52,7 @@ resource "tls_cert_request" "matchbox-server" {
     "localhost"
   ]
   ip_addresses = [
-    "10.10.0.1",
+    "${var.vlan_ip}",
     "127.0.0.1"
   ]
 }
