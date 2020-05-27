@@ -60,6 +60,7 @@ storage:
           local-address=0.0.0.0
           forward-zones=
           forward-zones+=local.vlan=127.0.0.1:5300
+          forward-zones+=.=${public_dns}
     - path: /usr/local/bin/install-dns.sh
       mode: 0755
       overwrite: true

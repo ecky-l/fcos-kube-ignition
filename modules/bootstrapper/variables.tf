@@ -3,6 +3,12 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
+variable "public_dns" {
+  type = string
+  description = "The public DNS servers, separated by ; Used for pdns-recursor to forward all zones other than the .vlan"
+  default = "8.8.8.8"
+}
+
 variable "vlan_ip" {
   type = string
   description = "The vlan ip for this host"
@@ -23,8 +29,8 @@ variable "dhcpd_config" {
   description = "DHCP parameters"
   default = {
     interface = "eth2"
-    domain_name = "example.com"
-    dns = "8.8.8.8"
+    domain_name = "local.vlan"
+    dns = "10.10.0.1"
     net = "10.10.0.0"
     netmask = "255.255.0.0"
     range_lower = "10.10.1.0"

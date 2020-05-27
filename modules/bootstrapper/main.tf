@@ -31,6 +31,7 @@ data "ct_config" "bootstrapper-ignition" {
     }),
     templatefile("${path.module}/templates/snippets/pdns.yaml", {
       vlan_ip = var.vlan_ip
+      public_dns = var.public_dns
     })
   ]
 }
