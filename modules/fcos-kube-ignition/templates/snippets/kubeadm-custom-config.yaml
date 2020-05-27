@@ -19,7 +19,9 @@ storage:
                 - signing
                 - authentication
           localAPIEndpoint:
+            %{~ if advertise_ip != null ~}
             advertiseAddress: ${advertise_ip}
+            %{~ endif ~}
             bindPort: 6443
           nodeRegistration:
             criSocket: /run/containerd/containerd.sock
@@ -32,8 +34,10 @@ storage:
           kind: ClusterConfiguration
           kubernetesVersion: ${kubernetes_version}
           apiServer:
+            %{~ if advertise_ip != null ~}
             extraArgs:
               advertise-address: ${advertise_ip}
+            %{~ endif ~}
             timeoutForControlPlane: 4m0s
           certificatesDir: /etc/kubernetes/pki
           clusterName: kubernetes

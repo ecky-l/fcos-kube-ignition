@@ -35,9 +35,11 @@ storage:
           done
           sleep 5
 
-          echo "Setting hostname to ${domain_name} (advertise ip = ${advertise_ip})"
+          echo "Setting hostname to ${domain_name}"
           hostnamectl set-hostname ${domain_name}
+          %{~ if advertise_ip != null ~}
           echo "${advertise_ip} ${domain_name}" >> /etc/hosts
+          %{~ endif ~}
 
           echo "Setting up kubernetes with ${setup_command}"
           ${setup_command} | tee /var/log/setup-k8s.log

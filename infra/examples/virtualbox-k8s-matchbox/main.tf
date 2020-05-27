@@ -10,17 +10,18 @@ module "virtualbox-k8s-matchbox" {
   ]
 
   controllers = [{
-    name   = "k1.home.el"
+    name   = "k1.local.vlan"
     mac    = "08:00:27:16:D1:FC"
-    domain = "k1.home.el"
-    advertise_ip = "192.168.56.20"
+    #mac    = "08:00:27:FF:96:A3"
+    domain = "k1.local.vlan"
+    advertise_ip = null #"192.168.56.20"
     netconfig = [{
       interface = "eth0"
-      method = "auto"
+      method = "manual"
       gateway = null
-      ipnet = ""
-      dns = ""
-    },{
+      ipnet = "10.10.0.10/16"
+      dns = "10.10.0.1"
+    }, {
       interface = "eth1"
       method = "auto"
       gateway = ""
@@ -29,7 +30,7 @@ module "virtualbox-k8s-matchbox" {
     }, {
       interface = "eth2"
       method = "manual"
-      gateway = "192.168.56.1"
+      gateway = null #"192.168.56.1"
       ipnet = "192.168.56.20/24"
       dns = "192.168.2.10"
     }]
