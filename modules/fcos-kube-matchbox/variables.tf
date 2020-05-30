@@ -35,6 +35,12 @@ variable "ssh_authorized_keys" {
   description = "SSH public keys for user 'core'"
 }
 
+variable "apiserver_extra_sans" {
+  type = list(string)
+  description = "List of extra SANs to add for certificate generation. Can be hostnames and ips"
+  default = null
+}
+
 variable "controllers" {
   type = list(object({
     name   = string

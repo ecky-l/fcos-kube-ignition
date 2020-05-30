@@ -9,6 +9,11 @@ module "virtualbox-k8s-matchbox" {
     file("~/.ssh/id_ed25519.pub")
   ]
 
+  apiserver_extra_sans = [
+    "192.168.56.20",
+    "k1.home.el"
+  ]
+
   controllers = [{
     name   = "k1.local.vlan"
     mac    = "08:00:27:16:D1:FC"

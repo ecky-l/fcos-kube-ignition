@@ -21,11 +21,12 @@ data "ct_config" "controller-ignitions" {
       setup_command       = "kubeadm init --config=/etc/kubernetes/kubeadm-custom-config.yaml"
     }),
     templatefile("${path.module}/templates/snippets/kubeadm-custom-config.yaml", {
-      kubernetes_version  = var.kubernetes_version
-      domain_name         = var.controllers.*.domain[count.index]
-      advertise_ip        = var.controllers.*.advertise_ip[count.index]
-      pod_subnet          = var.pod_subnet
-      service_subnet      = var.service_subnet
+      kubernetes_version   = var.kubernetes_version
+      domain_name          = var.controllers.*.domain[count.index]
+      advertise_ip         = var.controllers.*.advertise_ip[count.index]
+      apiserver_extra_sans = var.apiserver_extra_sans
+      pod_subnet           = var.pod_subnet
+      service_subnet       = var.service_subnet
     })
   ]
 }
