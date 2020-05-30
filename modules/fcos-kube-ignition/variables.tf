@@ -30,10 +30,15 @@ variable "controllers" {
     advertise_ip = string
     netconfig = list(object({
       interface = string
-      method = string
-      gateway = string
-      ipnet = string
-      dns = string
+      auto = object({
+        ignore_auto_dns = bool
+        never_default = bool
+      })
+      manual = object({
+        ipnet = string
+        dns = string
+        gateway = string
+      })
     }))
   }))
   description = <<EOD
@@ -49,10 +54,15 @@ variable "workers" {
     domain = string
     netconfig = list(object({
       interface = string
-      method = string
-      gateway = string
-      ipnet = string
-      dns = string
+      auto = object({
+        ignore_auto_dns = bool
+        never_default = bool
+      })
+      manual = object({
+        ipnet = string
+        dns = string
+        gateway = string
+      })
     }))
   }))
   description = <<EOD

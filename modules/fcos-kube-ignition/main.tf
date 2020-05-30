@@ -7,7 +7,7 @@ data "ct_config" "controller-ignitions" {
     ssh_authorized_keys    = var.ssh_authorized_keys
   })
   strict   = true
-  pretty_print = true
+  pretty_print = false
 
   snippets = [
     templatefile("${path.module}/templates/snippets/net-config.yaml", {

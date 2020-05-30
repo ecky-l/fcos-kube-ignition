@@ -15,13 +15,16 @@ storage:
           [ethernet]
           mac-address-blacklist=
           [ipv4]
-          method=${cfg.method}
-          %{~ if cfg.method == "manual" ~}
-          addresses=${cfg.ipnet}${ cfg.gateway != null ? format(",%s",cfg.gateway) : ""}
-          dns=${cfg.dns}
+          %{~ if cfg.auto != null ~}
+          method=auto
+          never-default=${cfg.auto.never_default}
+          ignore-auto-dns=${cfg.auto.ignore_auto_dns}
+          %{~ else ~}
+          %{~ if cfg.manual != null ~}
+          method=manual
+          addresses=${cfg.manual.ipnet}${ cfg.manual.gateway != null ? format(",%s",cfg.manual.gateway) : ""}
+          dns=${cfg.manual.dns == null ? "" : cfg.manual.dns}
           %{~ endif ~}
-          %{~ if cfg.method == "auto" && cfg.gateway == null ~}
-          never-default=true
           %{~ endif ~}
           [ipv6]
           addr-gen-mode=stable-privacy

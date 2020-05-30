@@ -10,6 +10,9 @@ storage:
           #!/usr/bin/env bash
           # barely copied from https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
           set -e
+          echo "Setting hostname to ${domain_name}"
+          hostnamectl set-hostname ${domain_name}
+
           echo "installing packages"
           command -v ethtool 2 >/dev/null || rpm-ostree install conntrack ethtool --reboot
 
@@ -35,8 +38,6 @@ storage:
           done
           sleep 5
 
-          echo "Setting hostname to ${domain_name}"
-          hostnamectl set-hostname ${domain_name}
           %{~ if advertise_ip != null ~}
           echo "${advertise_ip} ${domain_name}" >> /etc/hosts
           %{~ endif ~}

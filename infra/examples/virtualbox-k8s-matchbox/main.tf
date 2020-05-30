@@ -19,25 +19,30 @@ module "virtualbox-k8s-matchbox" {
     mac    = "08:00:27:16:D1:FC"
     #mac    = "08:00:27:FF:96:A3"
     domain = "k1.local.vlan"
-    advertise_ip = null #"192.168.56.20"
+    advertise_ip = "10.10.0.10"
     netconfig = [{
       interface = "eth0"
-      method = "manual"
-      gateway = null
-      ipnet = "10.10.0.10/16"
-      dns = "10.10.0.1"
+      auto = null
+      manual = {
+        ipnet = "10.10.0.10/16"
+        dns = "10.10.0.1"
+        gateway = null
+      }
     }, {
       interface = "eth1"
-      method = "auto"
-      gateway = ""
-      ipnet = ""
-      dns = ""
+      auto = {
+        never_default = false
+        ignore_auto_dns = false
+      }
+      manual = null
     }, {
       interface = "eth2"
-      method = "manual"
-      gateway = null #"192.168.56.1"
-      ipnet = "192.168.56.20/24"
-      dns = "192.168.2.10"
+      auto = null
+      manual = {
+        ipnet = "192.168.56.20/24"
+        dns = null
+        gateway = null
+      }
     }]
   }]
   #workers = []
