@@ -28,7 +28,7 @@ variable "dhcpd_config" {
   })
   description = "DHCP parameters"
   default = {
-    interface = "eth2"
+    interface = "eth1"
     domain_name = "local.vlan"
     dns = "10.10.0.1"
     net = "10.10.0.0"

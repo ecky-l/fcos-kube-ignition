@@ -14,7 +14,7 @@ storage:
           #!/bin/bash -e
           echo "fetching pxelinux bootfiles"
           curl -sL --output /var/local/lib/tftpboot/undionly.kpxe http://boot.ipxe.org/undionly.kpxe
-          podman create --name tftpd --init -p ${vlan_ip}:69:69/udp -v /var/local/lib/tftpboot:/var/tftpboot:Z pghalliday/tftp
+          podman create --name tftpd -p ${vlan_ip}:69:69/udp -v /var/local/lib/tftpboot:/var/tftpboot:Z pghalliday/tftp
           cd /etc/systemd/system/ && podman generate systemd -fn tftpd ; cd -
           systemctl daemon-reload
           systemctl enable container-tftpd

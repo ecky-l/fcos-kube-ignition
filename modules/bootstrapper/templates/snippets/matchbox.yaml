@@ -40,7 +40,7 @@ storage:
         inline: |
           #!/bin/bash -e
           echo "creating matchbox container and systemd unit to start it"
-          podman create --name matchbox --init -p ${vlan_ip}:8080:8080 -p 8081:8081 \
+          podman create --name matchbox -p ${vlan_ip}:8080:8080 -p 8081:8081 \
                         -v /var/local/lib/matchbox:/var/lib/matchbox:Z \
                         -v /var/local/etc/matchbox:/etc/matchbox:Z,ro \
                         quay.io/coreos/matchbox:latest \
