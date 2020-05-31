@@ -2,7 +2,7 @@
 module "virtualbox-bootstrapper" {
   source = "../../../modules/bootstrapper"
   host_name = "befruchter.home.el"
-  public_dns = "192.168.2.10;8.8.8.8"
+  public_dns = "192.168.2.10"
   net_config = [{
     interface = "eth1"
     method = "manual"
