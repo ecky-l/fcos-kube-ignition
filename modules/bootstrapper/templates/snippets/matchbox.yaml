@@ -58,11 +58,11 @@ storage:
       contents:
         inline: |
           #!/bin/bash -e
-          FCOS_VERSIONS=%{ join(" ", download_fcos_versions) }
+          FCOS_VERSIONS=${ join(" ", download_fcos_versions) }
           DOWNLOAD_URL=https://builds.coreos.fedoraproject.org/prod/streams/stable/builds
           MATCHBOX_ASSETS_DIR=/var/local/lib/matchbox/assets/fcos
           for v in $${FCOS_VERSIONS}; do
-              OUTDIR=${MATCHBOX_ASSETS_DIR}/$${v}
+              OUTDIR=$${MATCHBOX_ASSETS_DIR}/$${v}
               mkdir -p $${OUTDIR}
               cd $${OUTDIR}
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-kernel-x86_64
@@ -72,6 +72,7 @@ storage:
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-metal.x86_64.raw.xz
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-metal.x86_64.raw.xz.sig
           done
+          touch /var/log/provision-done/download-fcos-pxe
 systemd:
   units:
     - name: install-matchbox.service

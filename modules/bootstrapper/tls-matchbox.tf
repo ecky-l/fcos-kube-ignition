@@ -52,7 +52,8 @@ resource "tls_cert_request" "matchbox-server" {
     "localhost"
   ]
   ip_addresses = [
-    "${var.vlan_ip}",
+    "${var.vlan_config.ipv4}",
+    "${var.vlan_config.ipv6}",
     "127.0.0.1"
   ]
 }

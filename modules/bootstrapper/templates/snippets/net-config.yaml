@@ -18,7 +18,7 @@ storage:
           iptables -t nat -A POSTROUTING -s ${vlan_config.netv4} -o ${public_interface} -j MASQUERADE
           iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
           iptables -A INPUT -m state --state NEW -i ${vlan_config.interface} -j ACCEPT
-    %{ for nic, conf in net_config ~}
+    %{~ for nic, conf in net_config ~}
     - path: /etc/NetworkManager/system-connections/${nic}.nmconnection
       mode: 0600
       overwrite: true
@@ -38,21 +38,22 @@ storage:
           ${key}=${value}
           %{~ endfor ~}
           %{~ endfor ~}
-    %{ endfor ~}
+    %{~ endfor ~}
 systemd:
-  - name: iptables-config.service
-    enabled: true
-    contents: |
-      [Unit]
-      Description=configure additional iptables rules
-      After=network-online.target
-      Wants=network-online.target
-      Before=systemd-user-sessions.service
-      [Service]
-      Type=oneshot
-      RemainAfterExit=true
-      ExecStart=/bin/bash /usr/local/bin/iptables-config.sh
-      StandardOutput=kmsg+console
-      StandardError=kmsg+console
-      [Install]
-      WantedBy=multi-user.target
+  units:
+    - name: iptables-config.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=configure additional iptables rules
+        After=network-online.target
+        Wants=network-online.target
+        Before=systemd-user-sessions.service
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/bin/bash /usr/local/bin/iptables-config.sh
+        StandardOutput=kmsg+console
+        StandardError=kmsg+console
+        [Install]
+        WantedBy=multi-user.target

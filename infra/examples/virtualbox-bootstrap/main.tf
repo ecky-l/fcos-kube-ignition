@@ -10,6 +10,14 @@ module "virtualbox-bootstrapper" {
         "method" = "manual"
         "address1" = "10.10.0.1/16"
         "dns" = "10.10.0.1"
+        "dns-search" = "local.vlan;"
+      }
+      "ipv6" = {
+        "method" = "manual"
+        "addr-gen-mode"= "stable-privacy"
+        "address1" = "fd75:bf9e:ed67:7438::1/64"
+        "dns" = "fd75:bf9e:ed67:7438::1;"
+        "dns-search" = "local.vlan;"
       }
     }
     "eth2" = {
