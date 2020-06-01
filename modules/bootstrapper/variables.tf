@@ -40,14 +40,21 @@ variable "dhcpd_config" {
 }
 
 variable "net_config" {
-  type = list(object({
-    interface = string
-    method = string
-    ipnet = string
-    gateway = string
-    dns = string
-  }))
-  description = "Network configuration for the bootstrap host"
+  type = map(map(map(string)))
+  description = <<EOD
+NetworkManager profile settings. Toplevel keys correspond to a profile (NIC), next level keys to INI keys within
+the profile. See https://developer.gnome.org/NetworkManager/stable/nm-settings.html for a complete reference
+EOD
+  default = {
+    "eth0" = {
+      "ipv4" = {
+        "method" = "auto"
+      },
+      "ipv6" = {
+        "method" = "auto"
+      }
+    }
+  }
 }
 
 variable "host_name" {

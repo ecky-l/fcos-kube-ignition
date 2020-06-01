@@ -1,10 +1,10 @@
 
-#resource "local_file" "test" {
-#  filename = "debug/out.yaml"
-#  content = templatefile("${path.module}/templates/snippets/net-config.yaml", {
-#    net_config = var.net_config
-#  })
-#}
+resource "local_file" "test" {
+  filename = "debug/out.yaml"
+  content = templatefile("${path.module}/templates/snippets/net-config.yaml", {
+    net_config = var.net_config
+  })
+}
 
 data "ct_config" "bootstrapper-ignition" {
   strict = true

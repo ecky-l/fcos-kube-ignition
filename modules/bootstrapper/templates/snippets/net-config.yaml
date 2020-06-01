@@ -3,35 +3,31 @@ variant: fcos
 version: 1.0.0
 storage:
   files:
-%{ for cfg in net_config ~}
-    - path: /etc/NetworkManager/system-connections/${cfg.interface}.nmconnection
+    - path: /etc/sysctl.d/80-nat.conf
+      mode: 0644
+      contents:
+        inline: |
+          net.ipv4.ip_forward = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+  %{ for nic, conf in net_config ~}
+    - path: /etc/NetworkManager/system-connections/${nic}.nmconnection
       mode: 0600
       overwrite: true
       contents:
         inline: |
           [connection]
-          interface-name=${cfg.interface}
-          type=ethernet
-          [ethernet]
-          mac-address-blacklist=
-          [ipv4]
-          method=${cfg.method}
-          %{~ if cfg.method == "manual" ~}
-          addresses=${cfg.ipnet}${ cfg.gateway != null ? format(",%s",cfg.gateway) : ""}
-          %{~ if cfg.dns != null ~}
-          dns=${cfg.dns}
-          %{~ endif ~}
-          %{~ else ~}
-          %{~ if cfg.gateway == null ~}
-          never-default=true
-          %{~ endif ~}
-          %{~ if cfg.ignore_auto_dns ~}
-          ignore-auto-dns=true
-          %{~ endif ~}
-          %{~ endif ~}
-          [ipv6]
-          addr-gen-mode=stable-privacy
-          dns-search=
-          method=auto
-          [proxy]
+          %{~ for key, value in merge({
+                                        "id"="${nic}",
+                                        "interface-name"="${nic}",
+                                        "type"="ethernet"
+                                      }, lookup(conf, "connection", {})) ~}
+          ${key}=${value}
+          %{~ endfor ~}
+          %{~ for cfgKey in setsubtract(keys(conf), ["connection"]) ~}
+          [${cfgKey}]
+          %{~ for key, value in conf[cfgKey] ~}
+          ${key}=${value}
+          %{~ endfor ~}
+          %{~ endfor ~}
 %{ endfor ~}
