@@ -9,10 +9,24 @@ variable "public_dns" {
   default = "8.8.8.8"
 }
 
-variable "vlan_ip" {
+variable "public_interface" {
   type = string
-  description = "The vlan ip for this host"
-  default = "10.10.0.1"
+  description = "The public interface, e.g. eth0. Used for NAT configuration"
+  default = "eth0"
+}
+
+variable "vlan_config" {
+  type = object({
+    interface = string
+    ipv4 = string
+    netv4 = string
+  })
+  description = "The vlan interface and ip for this host"
+  default = {
+    interface = "eth1"
+    ipv4 = "10.10.0.1"
+    netv4 = "10.10.0.0/16"
+  }
 }
 
 variable "dhcpd_config" {
