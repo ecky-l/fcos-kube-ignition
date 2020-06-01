@@ -52,6 +52,26 @@ storage:
           systemctl enable container-matchbox
           systemctl start container-matchbox
           touch /var/log/provision-done/install-matchbox
+    - path: /usr/local/bin/download-fcos-pxe.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/bash -e
+          FCOS_VERSIONS=%{ join(" ", download_fcos_versions) }
+          DOWNLOAD_URL=https://builds.coreos.fedoraproject.org/prod/streams/stable/builds
+          MATCHBOX_ASSETS_DIR=/var/local/lib/matchbox/assets/fcos
+          for v in $${FCOS_VERSIONS}; do
+              OUTDIR=${MATCHBOX_ASSETS_DIR}/$${v}
+              mkdir -p $${OUTDIR}
+              cd $${OUTDIR}
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-kernel-x86_64
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-kernel-x86_64.sig
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-initramfs.x86_64.img
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-initramfs.x86_64.img.sig
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-metal.x86_64.raw.xz
+              curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-metal.x86_64.raw.xz.sig
+          done
 systemd:
   units:
     - name: install-matchbox.service
@@ -71,4 +91,20 @@ systemd:
         StandardError=kmsg+console
         [Install]
         WantedBy=multi-user.target
-
+    - name: download-fcos-pxe.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Download fcos pxe files
+        After=network-online.target
+        Wants=network-online.target
+        Before=systemd-user-sessions.service
+        ConditionPathExists=!/var/log/provision-done/download-fcos-pxe
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=/usr/local/bin/download-fcos-pxe.sh
+        StandardOutput=kmsg+console
+        StandardError=kmsg+console
+        [Install]
+        WantedBy=multi-user.target

@@ -81,3 +81,11 @@ variable "certs_dir" {
   description = "Directory where to save the generated certs"
   default = "output/tls/matchbox"
 }
+
+variable "download_fcos_versions" {
+  type = list(string)
+  description = "A list of Fedora CoreOS versions for which the PXE files should be downloaded to matchbox assets dir"
+  default = [
+    "31.20200505.3.0"
+  ]
+}
