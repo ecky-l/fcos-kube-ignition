@@ -50,17 +50,15 @@ storage:
           			)
           			IN	NS	ns
           			IN	A	${vlan_config.ipv4}
-          			IN	AAAA	${vlan_config.ipv6}
           ns		IN	A	${vlan_config.ipv4}
-          ns		IN	AAAA	${vlan_config.ipv6}
     - path: /var/local/etc/pdns-recursor/recursor.conf
       mode: 0644
       overwrite: true
       contents:
         inline: |
           daemon=no
-          local-address=${vlan_config.ipv4},${vlan_config.ipv6}
-          allow-from=${vlan_config.netv4},${vlan_config.netv6}
+          local-address=0.0.0.0
+          allow-from=${vlan_config.netv4}
           query-local-address6=::
           forward-zones=local.vlan=127.0.0.1:5300
           forward-zones-recurse=.=${public_dns}
@@ -71,7 +69,7 @@ storage:
         inline: |
           #!/bin/bash -e
           echo "creating dns pod with pdns and pdns-recursor containers"
-          podman pod create --network host -n dns
+          podman pod create -p ${vlan_config.ipv4}:53:53/udp -p ${vlan_config.ipv4}:53:53/tcp -n dns
           podman create -d --name pdns -v /var/local/etc/pdns:/etc/pdns:Z --pod dns synyx/pdns
           podman create -d -v /var/local/etc/pdns-recursor/recursor.conf:/etc/pdns/recursor.conf:Z \
               --pod dns --name pdns-recursor lmnetworks/pdns-recursor

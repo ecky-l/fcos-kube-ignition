@@ -20,16 +20,12 @@ variable "vlan_config" {
     interface = string
     ipv4 = string
     netv4 = string
-    ipv6 = string
-    netv6 = string
   })
   description = "The vlan interface and ip for this host"
   default = {
     interface = "eth1"
     ipv4 = "10.10.0.1"
     netv4 = "10.10.0.0/16"
-    ipv6 = "fd75:bf9e:ed67:7438::1"
-    netv6 = "fd75:bf9e:ed67:7438::/64"
   }
 }
 
