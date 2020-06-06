@@ -24,22 +24,11 @@ variable "apiserver_extra_sans" {
 
 variable "controllers" {
   type = list(object({
-    name   = string
-    mac    = string
+    name = string
+    mac = string
     domain = string
     advertise_ip = string
-    netconfig = list(object({
-      interface = string
-      auto = object({
-        ignore_auto_dns = bool
-        never_default = bool
-      })
-      manual = object({
-        ipnet = string
-        dns = string
-        gateway = string
-      })
-    }))
+    net_config = map(map(map(string)))
   }))
   description = <<EOD
 List of controller machine details (unique name, identifying MAC address, FQDN)
@@ -52,18 +41,7 @@ variable "workers" {
     name   = string
     mac    = string
     domain = string
-    netconfig = list(object({
-      interface = string
-      auto = object({
-        ignore_auto_dns = bool
-        never_default = bool
-      })
-      manual = object({
-        ipnet = string
-        dns = string
-        gateway = string
-      })
-    }))
+    net_config = map(map(map(string)))
   }))
   description = <<EOD
 List of worker machine details (unique name, identifying MAC address, FQDN)

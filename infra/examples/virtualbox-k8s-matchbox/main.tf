@@ -2,7 +2,7 @@ module "virtualbox-k8s-matchbox" {
   source = "../../../modules/fcos-kube-matchbox"
 
   cluster_name = "vitualbox-local"
-  os_version = "31.20200505.3.0"
+  os_version = "31.20200517.3.0"
   matchbox_http_endpoint = "http://10.10.0.1:8080"
 
   ssh_authorized_keys = [
@@ -20,30 +20,22 @@ module "virtualbox-k8s-matchbox" {
     #mac    = "08:00:27:FF:96:A3"
     domain = "k1.local.vlan"
     advertise_ip = "10.10.0.10"
-    netconfig = [{
-      interface = "eth0"
-      auto = null
-      manual = {
-        ipnet = "10.10.0.10/16"
-        dns = "10.10.0.1"
-        gateway = null
+    net_config = {
+      "eth0" = {
+        "ipv4" = {
+          "method" = "manual"
+          "address1" = "10.10.0.10/16,10.10.0.1"
+          "dns" = "10.10.0.1;"
+          "dns-search" = "local.vlan;"
+        }
       }
-    }, {
-      interface = "eth1"
-      auto = {
-        never_default = false
-        ignore_auto_dns = false
+      "eth1" = {
+        "ipv4" = {
+          "method" = "manual"
+          "address1" = "192.168.56.20/24"
+        }
       }
-      manual = null
-    }, {
-      interface = "eth2"
-      auto = null
-      manual = {
-        ipnet = "192.168.56.20/24"
-        dns = null
-        gateway = null
-      }
-    }]
+    }
   }]
   #workers = []
 }

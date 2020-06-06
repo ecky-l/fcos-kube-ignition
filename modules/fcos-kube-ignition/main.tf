@@ -11,7 +11,7 @@ data "ct_config" "controller-ignitions" {
 
   snippets = [
     templatefile("${path.module}/templates/snippets/net-config.yaml", {
-      net-config = var.controllers.*.netconfig[count.index]
+      net_config = var.controllers.*.net_config[count.index]
     }),
     templatefile("${path.module}/templates/snippets/install-kubernetes.yaml", {
       kubernetes_version  = var.kubernetes_version

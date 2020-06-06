@@ -3,32 +3,38 @@ variant: fcos
 version: 1.0.0
 storage:
   files:
-%{ for cfg in net-config ~}
-    - path: /etc/NetworkManager/system-connections/${cfg.interface}.nmconnection
+    - path: /etc/modules-load.d/80-k8s.conf
+      mode: 0644
+      contents:
+        inline: |
+          br_netfilter
+    - path: /etc/sysctl.d/80-k8s.conf
+      mode: 0644
+      contents:
+        inline: |
+          net.ipv4.ip_forward = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+          vm.swappiness = 0
+    %{~ for nic, conf in net_config ~}
+    - path: /etc/NetworkManager/system-connections/${nic}.nmconnection
       mode: 0600
       overwrite: true
       contents:
         inline: |
           [connection]
-          interface-name=${cfg.interface}
-          type=ethernet
-          [ethernet]
-          mac-address-blacklist=
-          [ipv4]
-          %{~ if cfg.auto != null ~}
-          method=auto
-          never-default=${cfg.auto.never_default}
-          ignore-auto-dns=${cfg.auto.ignore_auto_dns}
-          %{~ else ~}
-          %{~ if cfg.manual != null ~}
-          method=manual
-          addresses=${cfg.manual.ipnet}${ cfg.manual.gateway != null ? format(",%s",cfg.manual.gateway) : ""}
-          dns=${cfg.manual.dns == null ? "" : cfg.manual.dns}
-          %{~ endif ~}
-          %{~ endif ~}
-          [ipv6]
-          addr-gen-mode=stable-privacy
-          dns-search=
-          method=auto
-          [proxy]
-%{ endfor ~}
+          %{~ for key, value in merge({
+                                        "id"="${nic}",
+                                        "interface-name"="${nic}",
+                                        "type"="ethernet"
+                                      }, lookup(conf, "connection", {})) ~}
+          ${key}=${value}
+          %{~ endfor ~}
+          %{~ for cfgKey in setsubtract(keys(conf), ["connection"]) ~}
+          [${cfgKey}]
+          %{~ for key, value in conf[cfgKey] ~}
+          ${key}=${value}
+          %{~ endfor ~}
+          %{~ endfor ~}
+    %{~ endfor ~}
+
