@@ -44,6 +44,11 @@ storage:
 
           echo "Setting up kubernetes with ${setup_command}"
           ${setup_command} | tee /var/log/setup-k8s.log
+
+          echo "Installing Calico pod network"
+          export KUBECONFIG=/etc/kubernetes/admin.conf
+          kubectl apply -f /etc/kubernetes/calico.yaml
+
           touch /var/log/k8s-installed
 systemd:
   units:

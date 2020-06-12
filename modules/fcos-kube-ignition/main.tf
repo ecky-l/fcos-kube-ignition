@@ -27,6 +27,10 @@ data "ct_config" "controller-ignitions" {
       apiserver_extra_sans = var.apiserver_extra_sans
       pod_subnet           = var.pod_subnet
       service_subnet       = var.service_subnet
+    }),
+    templatefile("${path.module}/templates/snippets/calico.yaml", {
+      advertise_ip        = var.controllers.*.advertise_ip[count.index]
+      pod_subnet          = var.pod_subnet
     })
   ]
 }
