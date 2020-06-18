@@ -43,4 +43,10 @@ storage:
             dnsDomain: cluster.local
             podSubnet: ${pod_subnet}
             serviceSubnet: ${service_subnet}
+          ---
+          apiVersion: kubeproxy.config.k8s.io/v1alpha1
+          kind: KubeProxyConfiguration
+          mode: "ipvs"
+          ipvs:
+            strictARP: true
           ...

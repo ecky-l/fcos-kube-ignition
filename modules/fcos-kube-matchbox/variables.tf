@@ -17,6 +17,7 @@ variable "os_stream" {
 variable "os_version" {
   type        = string
   description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
+  default = "32.20200601.3.0"
 }
 variable "kubernetes_version" {
   type = string

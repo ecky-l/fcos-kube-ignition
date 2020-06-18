@@ -2,7 +2,6 @@ module "virtualbox-k8s-matchbox" {
   source = "../../../modules/fcos-kube-matchbox"
 
   cluster_name = "vitualbox-local"
-  os_version = "31.20200517.3.0"
   matchbox_http_endpoint = "http://10.10.0.1:8080"
 
   ssh_authorized_keys = [
