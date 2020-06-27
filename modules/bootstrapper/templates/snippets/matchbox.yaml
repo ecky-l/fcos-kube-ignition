@@ -60,11 +60,10 @@ storage:
           #!/bin/bash -e
           FCOS_VERSIONS=${ join(" ", download_fcos_versions) }
           DOWNLOAD_URL=https://builds.coreos.fedoraproject.org/prod/streams/stable/builds
-          MATCHBOX_ASSETS_DIR=/var/local/lib/matchbox/assets/fcos
+          FCOS_ASSETS_DIR=/var/local/lib/matchbox/assets/fedora-coreos
+          mkdir -p $${FCOS_ASSETS_DIR}
+          cd $${FCOS_ASSETS_DIR}
           for v in $${FCOS_VERSIONS}; do
-              OUTDIR=$${MATCHBOX_ASSETS_DIR}/$${v}
-              mkdir -p $${OUTDIR}
-              cd $${OUTDIR}
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-kernel-x86_64
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-kernel-x86_64.sig
               curl -fsO $${DOWNLOAD_URL}/$${v}/x86_64/fedora-coreos-$${v}-live-initramfs.x86_64.img

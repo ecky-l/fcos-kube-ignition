@@ -19,10 +19,17 @@ variable "os_version" {
   description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
   default = "32.20200601.3.0"
 }
+
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
-  default = "v1.18.3"
+  default = "v1.18.4"
+}
+
+variable "cni_version" {
+  type = string
+  description = "The cni plugins version"
+  default = "v0.8.6"
 }
 
 variable "crictl_version" {

@@ -15,6 +15,7 @@ data "ct_config" "controller-ignitions" {
     }),
     templatefile("${path.module}/templates/snippets/install-kubernetes.yaml", {
       kubernetes_version  = var.kubernetes_version
+      cni_version         = var.cni_version
       crictl_version      = var.crictl_version
       domain_name         = var.controllers.*.domain[count.index]
       advertise_ip        = var.controllers.*.advertise_ip[count.index]

@@ -22,7 +22,7 @@ storage:
 
           echo "installing cni plugins"
           mkdir -p /opt/cni/bin
-          curl -fsL https://github.com/containernetworking/plugins/releases/download/v0.8.5/cni-plugins-linux-amd64-v0.8.5.tgz | tar -C /opt/cni/bin/ -xz
+          curl -fsL https://github.com/containernetworking/plugins/releases/download/${cni_version}/cni-plugins-linux-amd64-${cni_version}.tgz | tar -C /opt/cni/bin/ -xz
           echo "installing kubernetes ${kubernetes_version}"
           for f in kubeadm kubelet kubectl; do
               curl -sfL --remote-name-all https://storage.googleapis.com/kubernetes-release/release/${kubernetes_version}/bin/linux/amd64/$f --output /usr/local/bin/$f

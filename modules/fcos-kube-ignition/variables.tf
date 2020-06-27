@@ -2,7 +2,13 @@
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
-  default = "v1.18.3"
+  default = "v1.18.4"
+}
+
+variable "cni_version" {
+  type = string
+  description = "The cni plugins version"
+  default = "v0.8.6"
 }
 
 variable "crictl_version" {
