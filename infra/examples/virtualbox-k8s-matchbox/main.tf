@@ -13,12 +13,15 @@ module "virtualbox-k8s-matchbox" {
     "k1.home.el"
   ]
 
+  k8s_domain_name = "k1.local.vlan"
+
   controllers = [{
     name   = "k1.local.vlan"
     mac    = "08:00:27:16:D1:FC"
     #mac    = "08:00:27:FF:96:A3"
     domain = "k1.local.vlan"
     advertise_ip = "10.10.0.10"
+    root_partition_size_gib = 24
     net_config = {
       "eth0" = {
         "ipv4" = {

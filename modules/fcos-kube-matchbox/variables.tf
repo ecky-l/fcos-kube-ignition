@@ -17,7 +17,7 @@ variable "os_stream" {
 variable "os_version" {
   type        = string
   description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
-  default = "32.20200601.3.0"
+  default = "32.20200615.3.0"
 }
 
 variable "kubernetes_version" {
@@ -49,6 +49,11 @@ variable "apiserver_extra_sans" {
   default = null
 }
 
+variable "k8s_domain_name" {
+  type        = string
+  description = "Controller DNS name which resolves to a controller instance."
+}
+
 variable "controllers" {
   type = list(object({
     name   = string
@@ -56,6 +61,7 @@ variable "controllers" {
     domain = string
     advertise_ip = string
     net_config = map(map(map(string)))
+    root_partition_size_gib = number
   }))
   description = <<EOD
 List of controller machine details (unique name, identifying MAC address, FQDN)
@@ -69,6 +75,7 @@ variable "workers" {
     mac    = string
     domain = string
     net_config = map(map(map(string)))
+    root_partition_size_gib = number
   }))
   description = <<EOD
 List of worker machine details (unique name, identifying MAC address, FQDN)

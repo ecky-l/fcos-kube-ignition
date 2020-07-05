@@ -4,6 +4,7 @@ module "fcos-kube-ignition" {
   ssh_authorized_keys = var.ssh_authorized_keys
 
   apiserver_extra_sans = var.apiserver_extra_sans
+  k8s_domain_name = var.k8s_domain_name
   controllers = var.controllers
   workers = var.workers
   kubernetes_version = var.kubernetes_version

@@ -15,9 +15,36 @@ storage:
       contents:
         inline: |
           kernel.printk = 2 4 1 7
+  %{~ if root_partition_size_gib > 0 ~}
+  disks:
+    - device: /dev/sda
+      partitions:
+        - number: 0
+          label: data
+          start_mib: ${root_partition_size_gib*1024 + 513}
+  directories:
+    - path: /var/mnt/data
+      mode: 0755
+  filesystems:
+    - path: /var/mnt/data
+      device: /dev/disk/by-partlabel/data
+      format: xfs
+  %{~ endif ~}
 
 systemd:
   units:
     - name: docker.service
       mask: true
-
+    %{~ if root_partition_size_gib > 0 ~}
+    - name: var-mnt-data.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Data Mount
+        Before=local-fs.target
+        [Mount]
+        Where=/var/mnt/data/
+        What=/dev/disk/by-partlabel/data
+        [Install]
+        WantedBy=local-fs.target
+    %{~ endif ~}

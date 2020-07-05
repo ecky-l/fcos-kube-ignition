@@ -2,6 +2,7 @@
 data "ct_config" "controller-ignitions" {
   count = length(var.controllers)
   content = templatefile("${path.module}/templates/kube.yaml", {
+    root_partition_size_gib = var.controllers.*.root_partition_size_gib[count.index]
     domain_name            = var.controllers.*.domain[count.index],
     advertise_ip                = var.controllers.*.advertise_ip[count.index],
     ssh_authorized_keys    = var.ssh_authorized_keys
