@@ -2,19 +2,19 @@
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
-  default = "v1.18.4"
+  default = "v1.19.1"
 }
 
 variable "cni_version" {
   type = string
   description = "The cni plugins version"
-  default = "v0.8.6"
+  default = "v0.8.7"
 }
 
 variable "crictl_version" {
   type = string
   description = "The crictl version"
-  default = "v1.18.0"
+  default = "v1.19.0"
 }
 
 variable "ssh_authorized_keys" {

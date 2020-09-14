@@ -17,25 +17,25 @@ variable "os_stream" {
 variable "os_version" {
   type        = string
   description = "Fedora CoreOS version to PXE and install (e.g. 31.20200310.3.0)"
-  default = "32.20200615.3.0"
+  default = "32.20200824.3.0"
 }
 
 variable "kubernetes_version" {
   type = string
   description = "The kubernetes version"
-  default = "v1.18.4"
+  default = "v1.19.1"
 }
 
 variable "cni_version" {
   type = string
   description = "The cni plugins version"
-  default = "v0.8.6"
+  default = "v0.8.7"
 }
 
 variable "crictl_version" {
   type = string
   description = "The crictl version"
-  default = "v1.18.0"
+  default = "v1.19.0"
 }
 
 variable "ssh_authorized_keys" {
